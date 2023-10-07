@@ -16,7 +16,8 @@ def getSerializedTopCols(topTable):
     return stringCols.split()
 
 def mapRowToSeparateCols(row):
-    return row.split()
+    splittedRow = row.split()
+    return splittedRow[:11] + [" ".join(splittedRow[11:])]
 
 def mapSeparateColsToObject(rowWithSeparateCols, cols):
     return { cols[index]:rowCol for index, rowCol in enumerate(rowWithSeparateCols) } 
@@ -50,4 +51,4 @@ def get_top_data():
     return {'topData': topHeaderResult, 'cols': topTableCols, 'body': getSerializedTopBody(topTableResult, topTableCols) }
     
 
-app.run(host="192.168.0.104", port=5000, debug=True)
+app.run(host="178.253.42.169", port=5000, debug=True)
