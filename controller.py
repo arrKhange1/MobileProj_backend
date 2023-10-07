@@ -1,9 +1,6 @@
 ﻿from flask import Flask
 from flask_cors import CORS
-import subprocess
 import os
-import psutil
-import jsonify
 import re
 
 
@@ -12,8 +9,24 @@ CORS(app)
 
 @app.route('/')
 def home():
-    
     return 'hello world'
+    
+def getSerializedTopCols(topTable):
+    stringCols = topTable[0]
+    return stringCols.split()
+
+def mapRowToSeparateCols(row):
+    return row.split()
+
+def mapSeparateColsToObject(rowWithSeparateCols, cols):
+    return { cols[index]:rowCol for index, rowCol in enumerate(rowWithSeparateCols) } 
+
+def getSerializedTopBody(topTable, topTableCols):
+    topBody = topTable[1:]
+    bodyWithSeparateCols = list(map(mapRowToSeparateCols, topBody))
+    serializedTopBody = list(map(lambda row: mapSeparateColsToObject(row, topTableCols), bodyWithSeparateCols))
+    return serializedTopBody
+    
 
 @app.route("/get-top-data")
 def get_top_data():
@@ -32,6 +45,9 @@ def get_top_data():
     topHeaderResult = [val.strip() if index != len(rawTopHeaderArray)-1 else val.split('\n\n')[0].strip() for index, val in enumerate(rawTopHeaderArray)]
     topTableResult = [val.strip() for val in rawTopTableArray]
     
-    return {'topHeader': topHeaderResult, 'topTable': topTableResult }
+    topTableCols = getSerializedTopCols(topTableResult)
+    
+    return {'topData': topHeaderResult, 'cols': topTableCols, 'body': getSerializedTopBody(topTableResult, topTableCols) }
+    
 
 app.run(host="192.168.0.104", port=5000, debug=True)
