@@ -2,10 +2,32 @@
 from flask_cors import CORS
 import os
 import re
-
+import RPi.GPIO as GPIO
+import time
+import threading
 
 app = Flask(__name__)
 CORS(app)
+
+GPIO.setmode(GPIO.BCM)
+GPIO.setwarnings(False)
+GPIO.setup(18, GPIO.OUT)
+
+lamp_state = False
+
+def toggle_lamp():
+    global lamp_state
+    while True:
+        if (not lamp_state):
+            GPIO.output(18, GPIO.HIGH)
+            lamp_state = True
+        else:
+            GPIO.output(18, GPIO.LOW)
+            lamp_state = False
+        time.sleep(0.5)
+
+lamp_thread = threading.Thread(target=toggle_lamp)
+lamp_thread.start()
 
 @app.route('/')
 def home():
@@ -27,7 +49,10 @@ def getSerializedTopBody(topTable, topTableCols):
     bodyWithSeparateCols = list(map(mapRowToSeparateCols, topBody))
     serializedTopBody = list(map(lambda row: mapSeparateColsToObject(row, topTableCols), bodyWithSeparateCols))
     return serializedTopBody
-    
+
+@app.route("/get-pin-status")
+def get_pin_status():
+    return "LED ON" if lamp_state else "LED OFF"
 
 @app.route("/get-top-data")
 def get_top_data():
@@ -51,4 +76,5 @@ def get_top_data():
     return {'topData': topHeaderResult, 'cols': topTableCols, 'body': getSerializedTopBody(topTableResult, topTableCols) }
     
 
-app.run(host="178.253.42.169", port=5000, debug=True)
+app.run(host="192.168.0.104", port=5000, debug=True)
+
