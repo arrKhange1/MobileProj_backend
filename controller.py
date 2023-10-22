@@ -5,9 +5,12 @@ import re
 import RPi.GPIO as GPIO
 import time
 import threading
+import random
 
 app = Flask(__name__)
 CORS(app)
+
+random.seed()
 
 GPIO.setmode(GPIO.BCM)
 GPIO.setwarnings(False)
@@ -24,7 +27,7 @@ def toggle_lamp():
         else:
             GPIO.output(18, GPIO.LOW)
             lamp_state = False
-        time.sleep(0.5)
+        time.sleep(random.uniform(0.5, 1))
 
 lamp_thread = threading.Thread(target=toggle_lamp)
 lamp_thread.start()
@@ -52,7 +55,7 @@ def getSerializedTopBody(topTable, topTableCols):
 
 @app.route("/get-pin-status")
 def get_pin_status():
-    return "LED ON" if lamp_state else "LED OFF"
+    return {"lamp_state": "LED ON" if lamp_state else "LED OFF"}
 
 @app.route("/get-top-data")
 def get_top_data():
