@@ -6,6 +6,7 @@ import RPi.GPIO as GPIO
 import time
 import threading
 import random
+import json
 
 app = Flask(__name__)
 CORS(app)
@@ -55,7 +56,7 @@ def getSerializedTopBody(topTable, topTableCols):
 
 @app.route("/get-pin-status")
 def get_pin_status():
-    return {"lamp_state": "LED ON" if lamp_state else "LED OFF"}
+    return { 'lamp_state': lamp_state }
 
 @app.route("/get-top-data")
 def get_top_data():
@@ -79,5 +80,5 @@ def get_top_data():
     return {'topData': topHeaderResult, 'cols': topTableCols, 'body': getSerializedTopBody(topTableResult, topTableCols) }
     
 
-app.run(host="192.168.0.104", port=5000, debug=True)
+app.run(host="192.168.0.103", port=5000, debug=True)
 
